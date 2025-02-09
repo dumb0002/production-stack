@@ -1,0 +1,78 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{.Name}}
+  labels:
+    environment: test
+    release: test
+    performance: test
+spec:
+  replicas: {{.podReplicas}}
+  strategy:
+    rollingUpdate:
+      maxSurge: 100%
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      environment: test
+      release: test
+  progressDeadlineSeconds: 1200
+  template:
+    metadata:
+      labels:
+        environment: test
+        release: test
+        performance: test
+    spec:
+      containers:
+        - name: "vllm"
+          image: "vllm/vllm-openai:latest"
+
+          command:
+          - "vllm"
+          - "serve"
+          - "openai-community/gpt2"
+          - "--host"
+          - "0.0.0.0"
+          - "--port"
+          - "8000"
+          securityContext:
+            runAsNonRoot: false
+          imagePullPolicy: IfNotPresent
+          env:
+          - name: HF_HOME
+            value: /data          
+          ports:
+            - name: "container-port"
+              containerPort: 8000          
+          startupProbe:
+            failureThreshold: 60
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          resources:
+            requests:
+              memory: "16Gi"
+              cpu: "6"
+              nvidia.com/gpu: "1"
+            limits:
+              memory: "16Gi"
+              cpu: "6"
+              nvidia.com/gpu: "1"
+          volumeMounts:
+          - name: vllm-storage
+            mountPath: /data
+
+      volumes:
+        - name: vllm-storage
+          persistentVolumeClaim:
+            claimName: {{.claimName}}-{{.Index}}
