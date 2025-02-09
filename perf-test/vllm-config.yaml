@@ -1,0 +1,59 @@
+{{$namespace := DefaultParam .namespace "default"}}
+{{$deploymentReplicas:= DefaultParam .deploymentReplicas 1}}
+{{$podReplicas := DefaultParam .podReplicas "1"}}
+
+
+name: test
+namespace:
+  number: 1
+
+tuningSets:
+- name: Uniform1qps
+  qpsLoad:
+    qps: 1
+
+steps:
+- name: Start measurements
+  measurements:
+  - Identifier: PodStartupLatency
+    Method: PodStartupLatency
+    Params:
+      action: start
+      labelSelector: performance = test
+      threshold: 300s
+  - Identifier: WaitForControlledPodsRunning
+    Method: WaitForControlledPodsRunning
+    Params:
+      action: start
+      apiVersion: apps/v1
+      kind: Deployment
+      labelSelector: performance = test
+      operationTimeout: 300s
+- name: Create VLLM deployment
+  phases:
+  - NamespaceList: 
+    - {{$namespace}}
+    replicasPerNamespace: {{$deploymentReplicas}}
+    tuningSet: Uniform1qps
+    objectBundle:
+    - basename: vllm-storage-claim
+      objectTemplatePath: "vllm-pvc.yaml"
+    - basename: vllm-deployment
+      objectTemplatePath: "vllm-deployment.yaml"
+      templateFillMap:
+        podReplicas: {{$podReplicas}}
+        claimName: "vllm-storage-claim"
+    - basename: vllm-svc
+      objectTemplatePath: "vllm-service.yaml"
+- name: Wait for pods to be running
+  measurements:
+  - Identifier: WaitForControlledPodsRunning
+    Method: WaitForControlledPodsRunning
+    Params:
+      action: gather
+- name: Measure pod startup latency
+  measurements:
+  - Identifier: PodStartupLatency
+    Method: PodStartupLatency
+    Params:
+      action: gather

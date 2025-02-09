@@ -1,0 +1,113 @@
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: "vllm-pdb"
+spec:
+  maxUnavailable: 1
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: "vllm-router-service"
+  labels:
+    environment: router
+    release: router
+spec:
+  type: ClusterIP
+  ports:
+    - name: "router-sport"
+      port: 80
+      targetPort: 8000
+      protocol: TCP
+  selector:
+    environment: router
+    release: router
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: "vllm-router-service-account"
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: "vllm-pod-reader"
+rules:
+- apiGroups: [""] # "" indicates the core API group
+  resources: ["pods"]
+  verbs: ["get", "watch", "list"]
+
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: vllm-deployment-access-binding
+subjects:
+  - kind: ServiceAccount
+    name: vllm-router-service-account
+roleRef:
+  kind: Role
+  name: vllm-pod-reader
+  apiGroup: rbac.authorization.k8s.io
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: "vllm-deployment-router"
+  labels:
+    environment: router
+    release: router
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      environment: router
+      release: router
+  template:
+    metadata:
+      labels:
+        environment: router
+        release: router
+    spec:
+      serviceAccountName: vllm-router-service-account
+      containers:
+      - name: router-container
+        image: lmcache/lmstack-router:latest
+        args: # TODO: update here
+          - "--host"
+          - "0.0.0.0"
+          - "--port"
+          - "8000"
+          - "--service-discovery"
+          - "k8s"
+          - "--k8s-namespace"
+          - "%TARGET_NS%"
+          - "--k8s-label-selector"
+          - environment=test,release=test
+          - "--routing-logic"
+          - "roundrobin"
+          - "--engine-stats-interval"
+          - "15"
+          - "--request-stats-window"
+          - "60"
+        resources: # TODO: update here
+          requests:
+            cpu: "4"
+            memory: "16G"
+        ports:
+          - name: "router-cport"
+            containerPort: 8000
+
+        livenessProbe:
+          initialDelaySeconds: 30
+          periodSeconds: 5
+          failureThreshold: 3
+          httpGet:
+            path: /health
+            port: 8000

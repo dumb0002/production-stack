@@ -1,0 +1,16 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: vllm-monitoring
+  labels:
+    app: vllm
+spec:
+  endpoints:
+    - port: "service-port"
+  namespaceSelector:
+    matchNames:
+    - default
+  selector:
+    matchLabels:
+      environment: test
+      release: test

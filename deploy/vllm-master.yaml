@@ -1,0 +1,111 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: "%INSTANCE_NAME%-engine-service"
+  labels:
+    environment: test
+    release: test
+spec:
+  type: ClusterIP
+  ports:
+    - name: "service-port"
+      port: 80
+      targetPort: "container-port"
+      protocol: TCP
+  selector:
+    environment: test
+    release: test
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: "%INSTANCE_NAME%-storage-claim"
+  labels:
+    environment: test
+    release: test
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: "%INSTANCE_NAME%-deployment-vllm"
+  labels:
+    environment: test
+    release: test
+spec:
+  replicas: 1
+  strategy:
+    rollingUpdate:
+      maxSurge: 100%
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      environment: test
+      release: test
+  progressDeadlineSeconds: 1200
+  template:
+    metadata:
+      labels:
+        environment: test
+        release: test
+    spec:
+      containers:
+        - name: "vllm"
+          image: "vllm/vllm-openai:latest"
+
+          command:
+          - "vllm"
+          - "serve"
+          - "%MODEL_URL%"
+          - "--host"
+          - "0.0.0.0"
+          - "--port"
+          - "8000"
+          securityContext:
+            runAsNonRoot: false
+          imagePullPolicy: IfNotPresent
+          env:
+          - name: HF_HOME
+            value: /data          
+          ports:
+            - name: "container-port"
+              containerPort: 8000          
+          startupProbe:
+            failureThreshold: 60
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          resources:
+            requests:
+              memory: "16Gi"
+              cpu: "6"
+              nvidia.com/gpu: "1"
+            limits:
+              memory: "16Gi"
+              cpu: "6"
+              nvidia.com/gpu: "1"
+          volumeMounts:
+          - name: vllm-storage
+            mountPath: /data
+
+      volumes:
+        - name: vllm-storage
+          persistentVolumeClaim:
+            claimName: "%INSTANCE_NAME%-storage-claim"
