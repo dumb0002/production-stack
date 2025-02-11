@@ -31,7 +31,7 @@ In this tutorial, we will compute the breakdown of the e2e latency for a VLLM se
    For example:
    
    ```bash 
-   python3 vllm-serverStartupLatency.py $HOME/.kube/config wec1 its1 cluster1 1 $HOME/data
+   python3 vllm-serverStartupLatency.py $HOME/.kube/config wec1 environment=test vllm-test $HOME/data
    ```
 
    Below is a detailed explanation of the input parameters:
