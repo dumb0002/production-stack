@@ -42,10 +42,10 @@ In this tutorial, we will compute the breakdown of the e2e latency for a VLLM se
    - `output-directory`: path to the directory for the output data files, e.g., `$HOME/data`
 
 
-   The input parameter `kubeconfig` and `k8s-context-name` are optional. Setting both parameters to `None`, we will use the current . For example:
+   The input parameter `kubeconfig` and `k8s-context-name` are optional. Setting both parameters to `None`, we will use the current context set in the kubeconfig file set by the `KUBECONFIG` env variable. For example:
 
    ```bash 
-   python3 metrics_collector.py None None its1 cluster1 1 $HOME/data
+   python3 vllm-serverStartupLatency.py None None environment=test vllm-test $HOME/data
    ```
 
    The generated output from the script is tab-delimited file named `vllm-server-startup-latency.txt` with the following structure:
