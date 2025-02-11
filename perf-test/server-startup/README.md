@@ -54,6 +54,8 @@ In this tutorial, we will compute the breakdown of the e2e latency for a VLLM se
    <pod-name> <engine-initalization-time> <model-loading-time> <graph-capture-time> <api-server-init>
    ```
 
+   The unit of time  for each value is `seconds`. 
+
    For example: 
 
    ```bash
