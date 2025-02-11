@@ -64,7 +64,7 @@ In this tutorial, we will compute the breakdown of the e2e latency for a VLLM se
    Sample output:
 
    ```console 
-   vllm-opt125m-deployment-vllm-xxx-yyy	 <t1>   <t2>    <t3>    <t4>
+   vllm-opt125m-deployment-vllm-xxx-yyy	 17   8    16    0
    ```
 
 2. Clean up the generated workload Kubernetes API objects from your cluster:
