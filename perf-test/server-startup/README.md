@@ -51,7 +51,7 @@ In this tutorial, we will compute the breakdown of the e2e latency for a VLLM se
    The generated output from the script is tab-delimited file named `vllm-server-startup-latency.txt` with the following structure:
 
    ```console 
-   <pod-name> <process-startup-time> <model-loading-time> <memory-profile-time> <graph-capture-time> <api_server_init>
+   <pod-name> <engine-initalization-time> <model-loading-time> <graph-capture-time> <api-server-init>
    ```
 
    For example: 
@@ -64,7 +64,7 @@ In this tutorial, we will compute the breakdown of the e2e latency for a VLLM se
    Sample output:
 
    ```console 
-   vllm-opt125m-deployment-vllm-xxx-yyy	 <t1>   <t2>    <t3>    <t4>    <t5>
+   vllm-opt125m-deployment-vllm-xxx-yyy	 <t1>   <t2>    <t3>    <t4>
    ```
 
 2. Clean up the generated workload Kubernetes API objects from your cluster:
