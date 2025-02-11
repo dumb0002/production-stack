@@ -5,6 +5,7 @@ import kubernetes
 from kubernetes import client, config
 from kubernetes.client.rest import ApiException
 import re
+import sys
 from vllmLogParser import *
 
 
@@ -60,7 +61,7 @@ if __name__=="__main__":
     pods = c.find_pod_by_label(label_selector, namespace)
 
     fname = "vllm-server-startup-latency.txt"
-    fout = open(output_dir + fname, "w")
+    fout = open(output_dir + "/" + fname, "w")
 
     if pods:
         for pod in pods:
@@ -74,17 +75,24 @@ if __name__=="__main__":
 
             pod_logs = c.read_pod_logs(name, namespace)
             
-            # Compute 
+            # Compute the breakdow of the e2e startup latency for the VLLM server  
             if pod_logs:
                temp_logs = pod_logs.splitlines()
-               print("Extracting CUDA graph instantiation latency ...")
-               t1 = get_graph_capture_time(temp_logs)
 
-               print("Extracting memory profile latency ...")
-               t2 = get_memory_profile_time(temp_logs)
+               print("Extracting engine initalization latency ...")
+               t1 = get_engine_init_time(temp_logs)
+
+               print("Extracting Model Loading latency ...")
+               t2 = get_model_load_time(temp_logs)
+
+               print("Extracting CUDA graph instantiation latency ...")
+               t3 = get_graph_capture_time(temp_logs)
+
+               print("Extracting API Server Init latency ...")
+               t4 = get_apiserver_init_time(temp_logs)
 
             print('--------------------------------------')
-            fout.write(name + "\t" + t1 + "\t" + t2 + "\n")
+            fout.write(name + "\t" + str(t1) + "\t" + str(t2) + "\t" + str(t3) + "\t" + str(t4) + "\n")
             fout.flush()
     else:
         print("No pods found with label: ", label_selector)
