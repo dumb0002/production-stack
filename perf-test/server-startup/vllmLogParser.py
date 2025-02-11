@@ -105,7 +105,6 @@ def get_engine_init_time(logs):
            delta = d2 - d1
            t = delta.seconds
            break
-
     return t
 
 
@@ -146,8 +145,6 @@ def get_model_load_time(logs):
            delta = d2 - d1
            t = delta.seconds
            break
-           
-    print("Duration: ", t) 
     return t
 
 
@@ -182,5 +179,4 @@ def get_apiserver_init_time (logs):
            delta = d2 - d1
            t = delta.seconds
            break
-
     return t
