@@ -94,3 +94,7 @@ perf-test.py
 
 values-*.yaml
 helm/examples
+
+# perf-test
+/perf-test/server-startup/.venv
+/perf-test/server-startup/__pycache__/
