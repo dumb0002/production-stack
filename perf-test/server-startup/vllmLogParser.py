@@ -89,11 +89,9 @@ def get_engine_init_time(logs):
         if match_1 and not m1:
            t1 = sentence.split(" ")[2]
            m1=True
-
         elif match_2 and not m2:
            t2 = sentence.split(" ")[2]
            m2=True
-
         else:
            continue
 
@@ -125,15 +123,9 @@ def get_model_load_time(logs):
         if match_1 and not m1:
            t1 = sentence.split(" ")[2]
            m1=True
-           print("Match 1")
-           print(t1)
-          
         elif match_2 and not m2:
            t2 = sentence.split(" ")[2]
            m2=True
-           print("Match 2")
-           print(t2)
-
         else:
            continue
 
@@ -164,7 +156,6 @@ def get_apiserver_init_time (logs):
         if match_1 and not m1:
            t1 = sentence.split(" ")[2]
            m1=True
-          
         elif match_2 and not m2:
            t2 = sentence.split(" ")[2]
            m2=True
