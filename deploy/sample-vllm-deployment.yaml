@@ -50,7 +50,9 @@ spec:
         - name: TORCH_HOME
           value: "/data/torch"
         - name: XDG_CACHE_HOME
-          value: "/data/cache/vllm" 
+          value: "/data/cache" 
+        - name: VLLM_USE_V1
+          value: "1"  
         ports:
           - containerPort: 8000
             name: container-port
