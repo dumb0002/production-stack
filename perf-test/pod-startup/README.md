@@ -53,6 +53,8 @@ In this tutorial, we will use [clusterloader2](https://github.com/kubernetes/per
 
    - *namespace*: name prefix for the target namespace (e.g., `vllm-test`)
    - *deploymentReplicas*: number of VLLM deployment replicas (default value: `1`)
+   - *modelName*: name of the VLLM model to be served by the instance (default value: `gpt2`)
+   - *modelRepo*: repo of the LLM model (default value: `openai-community/gpt2`)
    - *podReplicas*: number of pod replicas per deployment (default value: `1`)
 
    
