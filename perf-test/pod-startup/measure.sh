@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# This script should be called from the root dir of the cloned repository.
+
 NAMESPACE="serverless-workstream"
 DEPLOYMENT_NAME="vllm-test"
 LABEL="app=vllm-test"
