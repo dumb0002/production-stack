@@ -77,7 +77,7 @@ if __name__=="__main__":
 
     fout = open(output_dir + "/vllm-server-startup-latency.txt", "w")
     #fout.write("pod_name" + "\t" + "engine_init" + "\t" + "model_loading model_weight_GB" + "\t" + "before_torch_compile" + "\t" + "torch_compile"  + "\t" + "CUDA_graph" + "\t" + "API_readiness" + "\n")
-
+    
     if pods:
         for pod in pods:
             name = pod.metadata.name
