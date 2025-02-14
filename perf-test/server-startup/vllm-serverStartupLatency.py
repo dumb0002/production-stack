@@ -6,6 +6,7 @@ from kubernetes import client, config
 from kubernetes.client.rest import ApiException
 import re
 import sys
+import pandas as pd
 from vllmLogParser import *
 
 
@@ -33,7 +34,6 @@ class Collector():
 
 
     def read_pod_logs(self, pod_name, namespace="default"):
-
         try:
             logs = self.core_v1_api.read_namespaced_pod_log(name=pod_name, namespace=namespace)
             return logs
@@ -44,11 +44,26 @@ class Collector():
 
 
     def find_pod_by_label(self, label_selector, namespace="default"):
-
         pods = self.core_v1_api.list_namespaced_pod(namespace, label_selector=label_selector).items
         return pods
 
+    def get_pod_readiness_time(self, pod_name, namespace="default"):
+        for cond in pod.status.conditions:
+           if cond.type == "Ready":
+              t = cond.last_transition_time
+              return t
 
+    # def text_to_csv(text_file_path, csv_file_path, delimiter='\t'):
+    #     try:
+    #        df = pd.read_csv(text_file_path, sep=delimiter)
+    #        df.to_csv(csv_file_path, index=False)
+    #        print(f"Successfully converted '{text_file_path}' to '{csv_file_path}'")
+    #     except FileNotFoundError:
+    #        print(f"Error: Text file '{text_file_path}' not found.")
+    #     except Exception as e:
+    #        print(f"An error occurred: {e}")
+
+            
 if __name__=="__main__": 
 
     kubeconfig = str(sys.argv[1]) # path to the kubeconfig file (e.g., "kscore-config)
@@ -60,8 +75,8 @@ if __name__=="__main__":
     c = Collector()
     pods = c.find_pod_by_label(label_selector, namespace)
 
-    fname = "vllm-server-startup-latency.txt"
-    fout = open(output_dir + "/" + fname, "w")
+    fout = open(output_dir + "/vllm-server-startup-latency.txt", "w")
+    #fout.write("pod_name" + "\t" + "engine_init" + "\t" + "model_loading model_weight_GB" + "\t" + "before_torch_compile" + "\t" + "torch_compile"  + "\t" + "CUDA_graph" + "\t" + "API_readiness" + "\n")
 
     if pods:
         for pod in pods:
@@ -70,29 +85,46 @@ if __name__=="__main__":
             # Check if the pod is running and condition status is 'ready'
             if pod.status.phase == "Running" and any(cond.status == "True" for cond in pod.status.conditions if cond.type == "Ready"):
                 print("Pod is running and condition status is 'ready': ", name)
+
+                pod_logs = c.read_pod_logs(name, namespace) 
+                if pod_logs:
+                    # save the logs into a file
+                    f = open(output_dir + "/" + name + "-log.txt", "w") 
+                    f.write(pod_logs)
+                    f.close()
+
+                    # Compute the breakdow of the e2e startup latency for the VLLM server  
+                    temp_logs = pod_logs.splitlines()
+
+                    print("Extracting engine initalization latency ...")
+                    t1 = get_engine_init_time(temp_logs)
+
+                    print("Extracting Model Loading latency ...")
+                    t2 = get_model_load_time(temp_logs)
+
+                    print("Extracting Model Weight Loading GB latency ...")
+                    t3 = get_model_weight_gb(temp_logs)
+
+                    print("Extracting time before torch.compile...")
+                    tx = get_before_torch_compile_time(temp_logs)
+
+                    print("Extracting torch.compile time ...")
+                    t5 = get_torch_compile_time(temp_logs)
+                    t4 = round(float(tx) - float(t5), 3) # computing time before torch.compile
+
+                    print("Extracting CUDA graph instantiation latency ...")
+                    t6 = get_cuda_graph_time(temp_logs)
+
+                    print("Extracting API Server Init latency ...")
+                    t7 = get_apiserver_init_time(temp_logs)
             else:
                 print("Pod is not running or condition status is not 'ready': ", name)
-
-            pod_logs = c.read_pod_logs(name, namespace)
-            
-            # Compute the breakdow of the e2e startup latency for the VLLM server  
-            if pod_logs:
-               temp_logs = pod_logs.splitlines()
-
-               print("Extracting engine initalization latency ...")
-               t1 = get_engine_init_time(temp_logs)
-
-               print("Extracting Model Loading latency ...")
-               t2 = get_model_load_time(temp_logs)
-
-               print("Extracting CUDA graph instantiation latency ...")
-               t3 = get_graph_capture_time(temp_logs)
-
-               print("Extracting API Server Init latency ...")
-               t4 = get_apiserver_init_time(temp_logs)
+                continue
 
             print('--------------------------------------')
-            fout.write(name + "\t" + str(t1) + "\t" + str(t2) + "\t" + str(t3) + "\t" + str(t4) + "\n")
+            fout.write(name + "\t" + str(t1) + "\t" + str(t2) + "\t" + str(t3) + "\t" + str(t4) + "\t" + str(t5) + "\t" + str(t6) + "\t" + str(t7) + "\n")
             fout.flush()
+        fout.close()
     else:
         print("No pods found with label: ", label_selector)
+    

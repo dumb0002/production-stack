@@ -48,13 +48,13 @@ In this tutorial, we will compute the breakdown of the e2e latency for a VLLM se
    python3 vllm-serverStartupLatency.py None None environment=test vllm-test $HOME/data
    ```
 
-   The generated output from the script is tab-delimited file named `vllm-server-startup-latency.txt` with the following structure:
+   The generated output from the script are two files. The first is a tab-delimited file named `vllm-server-startup-latency.txt` with the following structure:
 
    ```console 
-   <pod-name> <engine-initalization-time> <model-loading-time> <graph-capture-time> <api-server-init>
+   <pod-name> <engine-initalization-time> <model-weights-loading-time> <model-weights-loading_GB><time_before_torch_compile> <torch_compile_time> <CUDA-graph-capture> <api-readiness>
    ```
 
-   Also, the unit of measurement for each value is `seconds` in the generated output file, except for the value in the first colum which corresponds to the VLLM pod name. 
+   Also, the unit of measurement for each value is `seconds` in the generated output file, except for the value in the first colum which corresponds to the VLLM pod name, and the `<model-weights-loading_GB>` which has unit of GB. 
 
    For example: 
 
@@ -66,8 +66,39 @@ In this tutorial, we will compute the breakdown of the e2e latency for a VLLM se
    Sample output:
 
    ```console 
-   vllm-opt125m-deployment-vllm-xxx-yyy	 17   8    16    0
+   vllm-granite-3-0-2b-instruct-6f9cb88444-2czv  13  14   6.1501  2.97	30.03  18  0
    ```
+
+   The second file contains the logs of the vllm pods. For example:
+
+   ```bash
+   cat vllm-granite-3-0-2b-instruct-6f9cb88444-2czvd-log.txt
+   ```
+
+   Sample output:
+   ``` bash
+   INFO 02-13 15:01:07 gpu_model_runner.py:872] Loading model weights took 6.1501 GB
+   INFO 02-13 15:01:13 backends.py:579] Using cache directory: /data/cache/vllm/torch_compile_cache/02bf430320/rank_0 for vLLM's torch.compile
+   INFO 02-13 15:01:13 backends.py:587] Dynamo bytecode transform time: 6.77 s
+   INFO 02-13 15:01:16 backends.py:311] Cache the graph of shape None for later use
+   INFO 02-13 15:01:37 backends.py:323] Compiling a graph for general shape takes 23.26 s
+   WARNING 02-13 15:01:39 fused_moe.py:806] Using default MoE config. Performance might be sub-optimal! Config file not found at /usr/local/lib/python3.12/dist-packages/vllm/model_executor/layers/fused_moe/configs/E=40,N=512,device_name=NVIDIA_L40S.json
+   INFO 02-13 15:01:40 monitor.py:33] torch.compile takes 30.03 s in total
+   INFO 02-13 15:01:40 kv_cache_utils.py:407] # GPU blocks: 33660
+   INFO 02-13 15:01:40 kv_cache_utils.py:410] Maximum concurrency for 4096 tokens per request: 131.48x
+   INFO 02-13 15:01:59 gpu_model_runner.py:1043] Graph capturing finished in 18 secs, took 0.62 GiB
+   INFO 02-13 15:01:59 core.py:91] init engine (profile, create kv cache, warmup model) took 51.89 seconds
+   INFO 02-13 15:01:59 api_server.py:756] Using supplied chat template:^M
+   INFO 02-13 15:01:59 api_server.py:756] None
+   INFO 02-13 15:01:59 launcher.py:21] Available routes are:
+   INFO 02-13 15:01:59 launcher.py:29] Route: /openapi.json, Methods: HEAD, GET
+   INFO 02-13 15:01:59 launcher.py:29] Route: /docs, Methods: HEAD, GET
+   INFO 02-13 15:01:59 launcher.py:29] Route: /docs/oauth2-redirect, Methods: HEAD, GET
+   INFO 02-13 15:01:59 launcher.py:29] Route: /redoc, Methods: HEAD, GET
+   INFO 02-13 15:01:59 launcher.py:29] Route: /health, Methods: GET
+   INFO 02-13 15:01:59 launcher.py:29] Route: /ping, Methods: GET, POST
+   ```
+
 
 2. Clean up the generated workload Kubernetes API objects from your cluster:
 
