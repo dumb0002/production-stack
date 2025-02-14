@@ -9,7 +9,7 @@ In this tutorial, we will use [clusterloader2](https://github.com/kubernetes/per
 #### 1. Clone the following clusterloader2 repo:
 
    ```bash 
-   git clone -b release-1.31 https://github.com/kubernetes/perf-tests.git
+   git clone -b vllm-exp https://github.com/dumb0002/perf-tests.git
    ```
 
 #### 2. Configure clusterloader2:
