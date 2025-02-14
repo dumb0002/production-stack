@@ -1,9 +1,18 @@
-{{$namespace := DefaultParam .namespace "default"}}
+# {{$namespace := DefaultParam .namespace "default"}}
+# {{$deploymentReplicas:= DefaultParam .deploymentReplicas 1}}
+# {{$modelName := DefaultParam .modelName "gpt2"}}
+# {{$modelRepo := DefaultParam .modelName "openai-community/gpt2"}}
+# {{$podReplicas := DefaultParam .podReplicas "1"}}
+
+{{$namespace := DefaultParam .namespace "serverless-workstream"}}
 {{$deploymentReplicas:= DefaultParam .deploymentReplicas 1}}
+{{$modelName := DefaultParam .modelName "granite-3-0-2b-instruct"}}
+{{$modelRepo := DefaultParam .modelName "ibm-granite/granite-3.0-3b-a800m-instruct"}}
 {{$podReplicas := DefaultParam .podReplicas "1"}}
 
 
 name: test
+automanagedNamespaces: 0
 namespace:
   number: 1
 
@@ -20,7 +29,7 @@ steps:
     Params:
       action: start
       labelSelector: performance = test
-      threshold: 300s
+      threshold: 3600s
   - Identifier: WaitForControlledPodsRunning
     Method: WaitForControlledPodsRunning
     Params:
@@ -28,7 +37,7 @@ steps:
       apiVersion: apps/v1
       kind: Deployment
       labelSelector: performance = test
-      operationTimeout: 300s
+      operationTimeout: 3600s
 - name: Create VLLM deployment
   phases:
   - NamespaceList: 
@@ -36,14 +45,15 @@ steps:
     replicasPerNamespace: {{$deploymentReplicas}}
     tuningSet: Uniform1qps
     objectBundle:
-    - basename: vllm-storage-claim
+    - basename: {{$modelName}}
       objectTemplatePath: "vllm-pvc.yaml"
-    - basename: vllm-deployment
+    - basename: {{$modelName}}
       objectTemplatePath: "vllm-deployment.yaml"
       templateFillMap:
         podReplicas: {{$podReplicas}}
-        claimName: "vllm-storage-claim"
-    - basename: vllm-svc
+        claimName: {{$modelName}}
+        modelRepo: {{$modelRepo}}
+    - basename: {{$modelName}}
       objectTemplatePath: "vllm-service.yaml"
 - name: Wait for pods to be running
   measurements:
