@@ -64,7 +64,7 @@ In this tutorial, we will use [clusterloader2](https://github.com/kubernetes/per
 
    ```bash
    cd $CL2_DIR
-   go run cmd/clusterloader.go --testconfig=./testing/load/vllm-config.yaml --kubeconfig=${KUBECONFIG:-$HOME/.kube/config} --provider=local --v=2
+   go run cmd/clusterloader.go --testconfig=./testing/load/vllm-config.yaml --kubeconfig=${KUBECONFIG:-$HOME/.kube/config} --provider=ks --v=2
    ```
 
    At the end of clusterloader output you should see pod startup latency:
