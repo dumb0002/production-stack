@@ -9,7 +9,7 @@ In this tutorial, we will use [clusterloader2](https://github.com/kubernetes/per
 #### 1. Clone the following clusterloader2 repo:
 
    ```bash 
-   git clone -b vllm-exp https://github.com/dumb0002/perf-tests.git
+   git clone -b release-1.31 https://github.com/kubernetes/perf-tests.git
    ```
 
 #### 2. Configure clusterloader2:
@@ -64,7 +64,7 @@ In this tutorial, we will use [clusterloader2](https://github.com/kubernetes/per
 
    ```bash
    cd $CL2_DIR
-   go run cmd/clusterloader.go --testconfig=./testing/load/vllm-config.yaml --kubeconfig=${KUBECONFIG:-$HOME/.kube/config} --provider=ks --v=2
+   go run cmd/clusterloader.go --testconfig=./testing/load/vllm-config.yaml --kubeconfig=${KUBECONFIG:-$HOME/.kube/config} --provider=local --v=2
    ```
 
    At the end of clusterloader output you should see pod startup latency:
