@@ -6,7 +6,7 @@ from kubernetes import client, config
 from kubernetes.client.rest import ApiException
 import re
 import sys
-import pandas as pd
+# import pandas as pd
 from vllmLogParser import *
 
 
