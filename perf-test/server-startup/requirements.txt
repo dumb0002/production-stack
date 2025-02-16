@@ -1,1 +1,2 @@
 kubernetes==30.1.0
+pytz==2025.1
