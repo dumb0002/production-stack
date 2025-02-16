@@ -53,16 +53,6 @@ class Collector():
               t = cond.last_transition_time
               return t
 
-    # def text_to_csv(text_file_path, csv_file_path, delimiter='\t'):
-    #     try:
-    #        df = pd.read_csv(text_file_path, sep=delimiter)
-    #        df.to_csv(csv_file_path, index=False)
-    #        print(f"Successfully converted '{text_file_path}' to '{csv_file_path}'")
-    #     except FileNotFoundError:
-    #        print(f"Error: Text file '{text_file_path}' not found.")
-    #     except Exception as e:
-    #        print(f"An error occurred: {e}")
-
             
 if __name__=="__main__": 
 
@@ -76,8 +66,7 @@ if __name__=="__main__":
     pods = c.find_pod_by_label(label_selector, namespace)
 
     fout = open(output_dir + "/vllm-server-startup-latency.txt", "w")
-    #fout.write("pod_name" + "\t" + "engine_init" + "\t" + "model_loading model_weight_GB" + "\t" + "before_torch_compile" + "\t" + "torch_compile"  + "\t" + "CUDA_graph" + "\t" + "API_readiness" + "\n")
-    
+
     if pods:
         for pod in pods:
             name = pod.metadata.name
@@ -115,8 +104,13 @@ if __name__=="__main__":
                     print("Extracting CUDA graph instantiation latency ...")
                     t6 = get_cuda_graph_time(temp_logs)
 
-                    print("Extracting API Server Init latency ...")
-                    t7 = get_apiserver_init_time(temp_logs)
+                    print("Computing API Server Init latency ...")
+                    # Extracting init engine time
+                    t_a = get_apiserver_init_time(temp_logs)
+                    # Extracting pod readiness time
+                    t_b = c.get_pod_readiness_time(name, namespace)
+                    # Compute init latency
+                    t7 = t_b - t_a
             else:
                 print("Pod is not running or condition status is not 'ready': ", name)
                 continue
