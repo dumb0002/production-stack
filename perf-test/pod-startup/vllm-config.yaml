@@ -1,7 +1,7 @@
-{{$namespace := DefaultParam .namespace "serverless-workstream"}}
+{{$namespace := DefaultParam .namespace "default"}}
 {{$deploymentReplicas:= DefaultParam .deploymentReplicas 1}}
-{{$modelName := DefaultParam .modelName "granite-3-0-2b-instruct"}}
-{{$modelRepo := DefaultParam .modelName "ibm-granite/granite-3.0-3b-a800m-instruct"}}
+{{$modelName := DefaultParam .modelName "gpt2"}}
+{{$modelRepo := DefaultParam .modelName "openai-community/gpt2"}}
 {{$podReplicas := DefaultParam .podReplicas "1"}}
 
 
