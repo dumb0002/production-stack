@@ -1,9 +1,3 @@
-# {{$namespace := DefaultParam .namespace "default"}}
-# {{$deploymentReplicas:= DefaultParam .deploymentReplicas 1}}
-# {{$modelName := DefaultParam .modelName "gpt2"}}
-# {{$modelRepo := DefaultParam .modelName "openai-community/gpt2"}}
-# {{$podReplicas := DefaultParam .podReplicas "1"}}
-
 {{$namespace := DefaultParam .namespace "serverless-workstream"}}
 {{$deploymentReplicas:= DefaultParam .deploymentReplicas 1}}
 {{$modelName := DefaultParam .modelName "granite-3-0-2b-instruct"}}
@@ -53,8 +47,6 @@ steps:
         podReplicas: {{$podReplicas}}
         claimName: {{$modelName}}
         modelRepo: {{$modelRepo}}
-    - basename: {{$modelName}}
-      objectTemplatePath: "vllm-service.yaml"
 - name: Wait for pods to be running
   measurements:
   - Identifier: WaitForControlledPodsRunning
