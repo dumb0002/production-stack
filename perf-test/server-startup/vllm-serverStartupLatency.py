@@ -60,12 +60,13 @@ if __name__=="__main__":
     k8s_context = str(sys.argv[2]) # name of the k8s cluster context (e.g., 'wec1')
     label_selector = str(sys.argv[3]) # vllm pod label selector (e.g, 'environment=test')
     namespace = str(sys.argv[4]) # vllm pod namespace (e.g., `vllm-test`)
-    output_dir = str(sys.argv[5]) # path to the directory for the output files (e.g., $HOME/data/)
+    model_name = str(sys.argv[5])
+    output_dir = str(sys.argv[6]) # path to the directory for the output files (e.g., $HOME/data/)
 
     c = Collector()
     pods = c.find_pod_by_label(label_selector, namespace)
 
-    fout = open(output_dir + "/vllm-server-startup-latency.txt", "w")
+    fout = open(output_dir + "/" + model_name + "_vllm-server-startup-latency.txt", "w")
 
     if pods:
         for pod in pods:
@@ -110,7 +111,7 @@ if __name__=="__main__":
                     # Extracting pod readiness time
                     t_b = c.get_pod_readiness_time(name, namespace)
                     # Compute init latency
-                    t7 = t_b - t_a
+                    t7 = (t_b - t_a).seconds
             else:
                 print("Pod is not running or condition status is not 'ready': ", name)
                 continue

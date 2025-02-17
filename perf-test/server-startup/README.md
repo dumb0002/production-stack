@@ -31,7 +31,7 @@ In this tutorial, we will compute the breakdown of the e2e latency for a VLLM se
    For example:
    
    ```bash 
-   python3 vllm-serverStartupLatency.py $HOME/.kube/config wec1 environment=test vllm-test $HOME/data
+   python3 vllm-serverStartupLatency.py $HOME/.kube/config wec1 environment=test vllm-test gpt2 $HOME/data
    ```
 
    Below is a detailed explanation of the input parameters:
@@ -39,13 +39,14 @@ In this tutorial, we will compute the breakdown of the e2e latency for a VLLM se
    - `k8s-context-name`: name of the context for the k8s cluster, e.g., `wec1`
    - `pod-label-selector`: label of the vllm pods, e.g., `environment=test` 
    - `namespace`: namespace for the vllm pods, e.g., `vllm-test`
+   - `model-name`: LLM model name, e.g., `gpt2`.
    - `output-directory`: path to the directory for the output data files, e.g., `$HOME/data`
 
 
    The input parameter `kubeconfig` and `k8s-context-name` are optional. Setting both parameters to `None`, we will use the current context set in the kubeconfig file set by the `KUBECONFIG` env variable. For example:
 
    ```bash 
-   python3 vllm-serverStartupLatency.py None None environment=test vllm-test $HOME/data
+   python3 vllm-serverStartupLatency.py None None environment=test vllm-test gpt2 $HOME/data
    ```
 
    The generated output from the script are two files. The first is a tab-delimited file named `vllm-server-startup-latency.txt` with the following structure:
@@ -60,7 +61,7 @@ In this tutorial, we will compute the breakdown of the e2e latency for a VLLM se
 
    ```bash
    cd $HOME/data
-   cat vllm-server-startup-latency.txt
+   cat gpt2_vllm-server-startup-latency.txt
    ```
  
    Sample output:
