@@ -2,7 +2,7 @@
 import os
 import re
 import sys
-from vllmLogParser import *
+from parserHelper import *
 
 
 class Parser():

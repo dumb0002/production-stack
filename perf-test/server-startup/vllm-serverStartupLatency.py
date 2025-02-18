@@ -6,8 +6,7 @@ from kubernetes import client, config
 from kubernetes.client.rest import ApiException
 import re
 import sys
-# import pandas as pd
-from vllmLogParser import *
+from parserHelper import *
 
 
 class Collector():
@@ -92,14 +91,15 @@ if __name__=="__main__":
                     temp_logs = pod_logs.splitlines()
 
                     print("Computing Startup latency ...")
-                    # Extracting container running time
-                    d_0a = c.get_pod_readiness_time(name, namespace)
+                    # # Extracting container running time
+                    # d_0a = c.get_pod_readiness_time(name, namespace)
 
-                    # Extracting vllm_first_log_message_timestamp
-                    d_0b = get_log_first_timestamp()
+                    # # Extracting vllm_first_log_message_timestamp
+                    # d_0b = get_log_first_timestamp(temp_logs)
 
                     # Compute process startup
-                    t0 = (d_0b - d_0a).seconds
+                    # t0 = (d_0b - d_0a).seconds
+                    t0 = "None"
 
                     print("Extracting engine initalization latency ...")
                     t1 = get_engine_init_time(temp_logs)
