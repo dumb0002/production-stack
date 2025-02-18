@@ -130,8 +130,8 @@ In this tutorial, we will compute the breakdown of the e2e latency for a VLLM se
    ```
 
    Below is a detailed explanation of the input parameters:
-   - `vllm-log-file`: file with the vllm logs,  e.g., `$HOME/logs/pod-vllm-logs.txt`
-   - `output-directory`: path to the directory for the output data files, e.g., `$HOME/data`
+   - `vllm-log-file`: text file with the vllm logs,  e.g., `$HOME/logs/pod-vllm-logs.txt`
+   - `output-directory`: path to the directory for the output data file, e.g., `$HOME/data`
 
    Below is a snapshot of few lines for the begining of a valid VLLM log file:
 
