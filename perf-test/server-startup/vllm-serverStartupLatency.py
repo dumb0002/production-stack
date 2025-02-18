@@ -54,7 +54,6 @@ class Collector():
 
     def get_container_running_time(self, pod_name, namespace="default"):
         t = (pod.status.container_statuses[0]).state.running.started_at
-        print(t)
         return t
 
             
@@ -91,15 +90,14 @@ if __name__=="__main__":
                     temp_logs = pod_logs.splitlines()
 
                     print("Computing Startup latency ...")
-                    # # Extracting container running time
-                    # d_0a = c.get_pod_readiness_time(name, namespace)
+                    # Extracting container running time
+                    d_0a = c.get_container_running_time(name, namespace)
 
-                    # # Extracting vllm_first_log_message_timestamp
-                    # d_0b = get_log_first_timestamp(temp_logs)
+                    # Extracting vllm_first_log_message_timestamp
+                    d_0b = get_log_first_timestamp(temp_logs)
 
                     # Compute process startup
-                    # t0 = (d_0b - d_0a).seconds
-                    t0 = "None"
+                    t0 = (d_0b - d_0a).seconds
 
                     print("Extracting engine initalization latency ...")
                     t1 = get_engine_init_time(temp_logs)
