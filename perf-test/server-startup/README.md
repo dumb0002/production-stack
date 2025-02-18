@@ -16,7 +16,9 @@ In this tutorial, we will compute the breakdown of the e2e latency for a VLLM se
 
 ### Steps
 
-#### 1. Open a new terminal and cd into the `perf-test/server-startup` directory from your local copy of this repo repo, for example:
+#### 1. Compute the startup latency for a VLLM server deployed in a Kubernetes cluster:
+
+   Open a new terminal and cd into the `perf-test/server-startup` directory from your local copy of this repo repo, for example:
    
    ```bash 
    cd $HOME/production-stack/perf-test/server-startup
@@ -113,7 +115,7 @@ In this tutorial, we will compute the breakdown of the e2e latency for a VLLM se
    kubectl -n vllm-test delete pods -l environment=test
    ```
 
-#### 3. Compute the startup latencies of the VLLM server by analyzing an existing log text file (Optional):
+#### 3. Compute the startup latencies of the VLLM server by analyzing an existing log text file (OPTIONAL):
 
    Run the metrics collection script:
 
