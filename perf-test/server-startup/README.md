@@ -16,7 +16,7 @@ In this tutorial, we will compute the breakdown of the e2e latency for a VLLM se
 
 ### Steps
 
-1. Open a new terminal and cd into the `perf-test/server-startup` directory from your local copy of this repo repo, for example:
+#### 1. Open a new terminal and cd into the `perf-test/server-startup` directory from your local copy of this repo repo, for example:
    
    ```bash 
    cd $HOME/production-stack/perf-test/server-startup
@@ -101,7 +101,7 @@ In this tutorial, we will compute the breakdown of the e2e latency for a VLLM se
    ```
 
 
-2. Clean up the generated workload Kubernetes API objects from your cluster:
+#### 2. Clean up the generated workload Kubernetes API objects from your cluster:
 
    ```bash 
    kubectl -n <namespace> delete pods -l <pod-label-selector>
@@ -113,18 +113,18 @@ In this tutorial, we will compute the breakdown of the e2e latency for a VLLM se
    kubectl -n vllm-test delete pods -l environment=test
    ```
 
-3. Compute the startup latencies of the VLLM server by analyzing an existing log text file (Optional):
+#### 3. Compute the startup latencies of the VLLM server by analyzing an existing log text file (Optional):
 
    Run the metrics collection script:
 
    ```bash
-   python3 vllm-logs-parser.py <vllm-log-file> <output-directory>
+   python3 vllm-logParser.py <vllm-log-file> <output-directory>
    ```
 
    For example:
    
    ```bash 
-   python3 vllm-logs-parser.py $HOME/logs/pod-vllm-logs.txt $HOME/data
+   python3 vllm-logParser.py $HOME/logs/pod-vllm-logs.txt $HOME/data
    ```
 
    Below is a detailed explanation of the input parameters:
@@ -132,7 +132,7 @@ In this tutorial, we will compute the breakdown of the e2e latency for a VLLM se
    - `output-directory`: path to the directory for the output data files, e.g., `$HOME/data`
 
    Below is a snapshot of few lines for the begining of a valid VLLM log file:
-   
+
    ```
    INFO 02-13 15:00:40 __init__.py:190] Automatically detected platform cuda.
    INFO 02-13 15:00:42 api_server.py:840] vLLM API server version 0.7.2
