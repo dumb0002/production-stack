@@ -4,6 +4,27 @@ import pytz
 from datetime import datetime
 
 
+# Extract Process Startup end time: vllm_first_log_message_timestamp
+def get_log_first_timestamp (logs):
+    d = None
+    pattern = "Automatically detected platform cuda."
+
+    for line in logs:
+        sentence = line.strip("\n")
+        match = re.search(pattern, sentence)
+
+        if match:
+           current_datetime = datetime.now()
+           current_year = current_datetime.year
+           t = str(current_year) + "-" + sentence.split(" ")[1] + " " + sentence.split(" ")[2]
+
+           # convert to UTC timezone:
+           d = convert_pt_to_utc(t)
+           break
+        else:
+           continue 
+    return d
+
 
 # Extract Engine Initialization
 def get_engine_init_time(logs):
@@ -194,43 +215,45 @@ def get_apiserver_init_time (logs):
 
            # convert to UTC timezone:
            d = convert_pt_to_utc(t)
+           break
         else:
            continue 
     return d
 
 
-# # Extract API Readiness time
-# def get_apiserver_init_time (logs):
-#     pattern1 = "init engine"
-#     pattern2 = "Route: /invocations, Methods: POST"
+# Extract API Readiness time: an approximation for this computation
+def get_apiserver_init_time_simple (logs):
+    pattern1 = "init engine"
+    pattern2 = "Route: /invocations, Methods: POST"
     
-#     t = 0
-#     m1=False
-#     m2=False
+    t = 0
+    m1=False
+    m2=False
 
-#     for line in logs:
-#         sentence = line.strip("\n")
-#         match_1 = re.search(pattern1, sentence)
-#         match_2 = re.search(pattern2, sentence)
+    for line in logs:
+        sentence = line.strip("\n")
+        match_1 = re.search(pattern1, sentence)
+        match_2 = re.search(pattern2, sentence)
 
-#         if match_1 and not m1:
-#            t1 = sentence.split(" ")[2]
-#            m1=True
-#         elif match_2 and not m2:
-#            t2 = sentence.split(" ")[2]
-#            m2=True
-#         else:
-#            continue
+        if match_1 and not m1:
+           t1 = sentence.split(" ")[2]
+           m1=True
+        elif match_2 and not m2:
+           t2 = sentence.split(" ")[2]
+           m2=True
+        else:
+           continue
 
-#         # compute the time
-#         if m1 and m2:
-#            format_string = "%H:%M:%S"
-#            d1 = datetime.strptime(t1, format_string)
-#            d2 = datetime.strptime(t2, format_string)
-#            delta = d2 - d1
-#            t = delta.seconds
-#            break
-#     return t
+        # compute the time
+        if m1 and m2:
+           format_string = "%H:%M:%S"
+           d1 = datetime.strptime(t1, format_string)
+           d2 = datetime.strptime(t2, format_string)
+           delta = d2 - d1
+           t = delta.seconds 
+           break
+    return t
+
 
 # Extract memory profile latency
 def get_memory_profile_time(logs):

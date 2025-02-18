@@ -53,6 +53,11 @@ class Collector():
               t = cond.last_transition_time
               return t
 
+    def get_container_running_time(self, pod_name, namespace="default"):
+        t = (pod.status.container_statuses[0]).state.running.started_at
+        print(t)
+        return t
+
             
 if __name__=="__main__": 
 
@@ -71,7 +76,7 @@ if __name__=="__main__":
     if pods:
         for pod in pods:
             name = pod.metadata.name
-
+           
             # Check if the pod is running and condition status is 'ready'
             if pod.status.phase == "Running" and any(cond.status == "True" for cond in pod.status.conditions if cond.type == "Ready"):
                 print("Pod is running and condition status is 'ready': ", name)
@@ -85,6 +90,16 @@ if __name__=="__main__":
 
                     # Compute the breakdow of the e2e startup latency for the VLLM server  
                     temp_logs = pod_logs.splitlines()
+
+                    print("Computing Startup latency ...")
+                    # Extracting container running time
+                    d_0a = c.get_pod_readiness_time(name, namespace)
+
+                    # Extracting vllm_first_log_message_timestamp
+                    d_0b = get_log_first_timestamp()
+
+                    # Compute process startup
+                    t0 = (d_0b - d_0a).seconds
 
                     print("Extracting engine initalization latency ...")
                     t1 = get_engine_init_time(temp_logs)
@@ -107,17 +122,17 @@ if __name__=="__main__":
 
                     print("Computing API Server Init latency ...")
                     # Extracting init engine time
-                    t_a = get_apiserver_init_time(temp_logs)
+                    d_7a = get_apiserver_init_time(temp_logs)
                     # Extracting pod readiness time
-                    t_b = c.get_pod_readiness_time(name, namespace)
+                    d_7b = c.get_pod_readiness_time(name, namespace)
                     # Compute init latency
-                    t7 = (t_b - t_a).seconds
+                    t7 = (d_7b - d_7a).seconds
             else:
                 print("Pod is not running or condition status is not 'ready': ", name)
                 continue
 
             print('--------------------------------------')
-            fout.write(name + "\t" + str(t1) + "\t" + str(t2) + "\t" + str(t3) + "\t" + str(t4) + "\t" + str(t5) + "\t" + str(t6) + "\t" + str(t7) + "\n")
+            fout.write(name + "\t" + str(t0) +  "\t" + str(t1) + "\t" + str(t2) + "\t" + str(t3) + "\t" + str(t4) + "\t" + str(t5) + "\t" + str(t6) + "\t" + str(t7) + "\n")
             fout.flush()
         fout.close()
     else:
