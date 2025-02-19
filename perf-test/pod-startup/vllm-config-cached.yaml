@@ -1,0 +1,48 @@
+{{$namespace := DefaultParam .namespace "default"}}
+{{$deploymentReplicas:= DefaultParam .deploymentReplicas 1}}
+{{$modelName := DefaultParam .modelName "gpt2"}}
+{{$modelRepo := DefaultParam .modelName "openai-community/gpt2"}}
+{{$podReplicas := DefaultParam .podReplicas "1"}}
+
+
+name: test
+automanagedNamespaces: 0
+namespace:
+  number: 1
+
+tuningSets:
+- name: Uniform1qps
+  qpsLoad:
+    qps: 1
+
+steps:
+- name: Start measurements
+  measurements:
+  - Identifier: PodStartupLatency
+    Method: PodStartupLatency
+    Params:
+      action: start
+      labelSelector: performance = test
+      threshold: 3600s
+  - Identifier:  WaitForRunningPods
+    Method: WaitForRunningPods
+    Params:
+      action: start
+      timeout: 5m
+      desiredPodCount: 1
+      labelSelector: performance = test
+- name: Wait for pods to be running
+  measurements:
+  - Identifier: WaitForRunningPods
+    Method: WaitForRunningPods
+    Params:
+      action: gather
+      timeout: 5m
+      desiredPodCount: 1
+      labelSelector: performance = test
+- name: Measure pod startup latency
+  measurements:
+  - Identifier: PodStartupLatency
+    Method: PodStartupLatency
+    Params:
+      action: gather
