@@ -98,3 +98,4 @@ helm/examples
 # perf-test
 /perf-test/server-startup/.venv
 /perf-test/server-startup/__pycache__/
+/perf-test/outputs/
