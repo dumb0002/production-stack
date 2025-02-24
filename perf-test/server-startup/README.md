@@ -27,7 +27,7 @@ In this tutorial, we will compute the breakdown of the e2e latency for a VLLM se
    Then, run the metrics collection script:
 
    ```bash
-   python3 vllm-serverStartupLatency.py <kubeconfig> <k8s-context-name> <pod-label-selector> <namespace> <output-directory>
+   python3 vllm-serverStartupLatency.py <kubeconfig> <k8s-context-name> <pod-label-selector> <namespace> <model-name> <output-directory>
    ```
 
    For example:
