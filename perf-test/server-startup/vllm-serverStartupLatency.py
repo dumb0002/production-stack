@@ -6,6 +6,7 @@ from kubernetes import client, config
 from kubernetes.client.rest import ApiException
 import re
 import sys
+import argparse
 from parserHelper import *
 
 
@@ -32,9 +33,9 @@ class Collector():
         return core_v1_api, app_v1_api, custom_objects_api
 
 
-    def read_pod_logs(self, pod_name, namespace="default"):
+    def read_pod_logs(self, pod_name, namespace="default", container=None):
         try:
-            logs = self.core_v1_api.read_namespaced_pod_log(name=pod_name, namespace=namespace)
+            logs = self.core_v1_api.read_namespaced_pod_log(name=pod_name, namespace=namespace, container=container)
             return logs
 
         except client.exceptions.ApiException as e:
@@ -59,13 +60,23 @@ class Collector():
             
 if __name__=="__main__": 
 
-    kubeconfig = str(sys.argv[1]) # path to the kubeconfig file (e.g., "kscore-config)
-    k8s_context = str(sys.argv[2]) # name of the k8s cluster context (e.g., 'wec1')
-    label_selector = str(sys.argv[3]) # vllm pod label selector (e.g, 'environment=test')
-    namespace = str(sys.argv[4]) # vllm pod namespace (e.g., `vllm-test`)
-    model_name = str(sys.argv[5])
-    output_dir = str(sys.argv[6]) # path to the directory for the output files (e.g., $HOME/data/)
-
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-c", "--config", default="~/.kube/config", help="kubeconfig for the target cluster")
+    parser.add_argument("--context", default=None, help="name of k8s cluster context")
+    parser.add_argument("--containername", default=None, help="name of container in VLLM pod")
+    parser.add_argument("-l", "--label", help="vllm pod label selector (e.g, 'environment=test')")
+    parser.add_argument("-n", "--namespace", default="default", help="vllm pod namespace")
+    parser.add_argument("-m", "--model", default="mymodel", help="helpful description of model run by VLLM")
+    parser.add_argument("-o", "--output", default="vllm-log-dir", help="path to directory for output files (must exist)")
+    args = parser.parse_args()
+    kubeconfig=args.config
+    k8s_context=args.context
+    label_selector=args.label
+    namespace=args.namespace
+    model_name=args.model
+    output_dir=args.output
+    containername=args.containername
+    
     c = Collector()
     pods = c.find_pod_by_label(label_selector, namespace)
 
@@ -79,7 +90,7 @@ if __name__=="__main__":
             if pod.status.phase == "Running" and any(cond.status == "True" for cond in pod.status.conditions if cond.type == "Ready"):
                 print("Pod is running and condition status is 'ready': ", name)
 
-                pod_logs = c.read_pod_logs(name, namespace) 
+                pod_logs = c.read_pod_logs(name, namespace, containername) 
                 if pod_logs:
                     # save the logs into a file
                     f = open(output_dir + "/" + name + "-log.txt", "w") 
