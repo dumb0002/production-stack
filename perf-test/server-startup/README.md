@@ -1,4 +1,4 @@
-## Measure VLLM Server StartupLatency
+## Measure vLLM Server StartupLatency
 
 
 ### Prerequisites: 
@@ -12,11 +12,11 @@ python3 -m venv .venv
 pip3 install -r requirements.txt
 ```
 
-In this tutorial, we will compute the breakdown of the e2e latency for a VLLM server running in a Kubernetes cluster as following:
+In this tutorial, we will compute the breakdown of the e2e latency for a vLLM server running in a Kubernetes cluster as following:
 
 ### Steps
 
-#### 1. Compute the startup latency for a VLLM server deployed in a Kubernetes cluster:
+#### 1. Compute the startup latency for a vLLM server deployed in a Kubernetes cluster:
 
    Open a new terminal and cd into the `perf-test/server-startup` directory from your local copy of this repo repo, for example:
    
@@ -27,34 +27,35 @@ In this tutorial, we will compute the breakdown of the e2e latency for a VLLM se
    Then, run the metrics collection script:
 
    ```bash
-   python3 vllm-serverStartupLatency.py <kubeconfig> <k8s-context-name> <pod-label-selector> <namespace> <model-name> <output-directory>
+   python3 vllm-serverStartupLatency.py -cfg <kubeconfig> -ctx <k8s-context-name> -l <pod-label-selector>  -c <container-name> -n <namespace> -m <model-name> -o <output-directory>
    ```
 
    For example:
    
    ```bash 
-   python3 vllm-serverStartupLatency.py $HOME/.kube/config wec1 environment=test vllm-test gpt2 $HOME/data
+   python3 vllm-serverStartupLatency.py -cfg $HOME/.kube/config -ctx wec1 -l environment=test -c vllm -n vllm-test -m gpt2 -o $HOME/data
    ```
 
    Below is a detailed explanation of the input parameters:
-   - `kubeconfig`: path to the kubeconfig file, e.g., `$HOME/.kube/config`
-   - `k8s-context-name`: name of the context for the k8s cluster, e.g., `wec1`
-   - `pod-label-selector`: label of the vllm pods, e.g., `environment=test` 
-   - `namespace`: namespace for the vllm pods, e.g., `vllm-test`
-   - `model-name`: LLM model name, e.g., `gpt2`.
-   - `output-directory`: path to the directory for the output data files, e.g., `$HOME/data`
+   - `--config (-cfg)`: path to the kubeconfig file, e.g., `$HOME/.kube/config`
+   - `--context (-ctx)`: name of the context for the k8s cluster, e.g., `wec1`
+   - `--label (-l)`: label of the vLLM pods, e.g., `environment=test` 
+   - `--containername (-c)`: name of container in vLLM pod"
+   - `--namespace (-n)`: namespace for the vLLM pods, e.g., `vllm-test`
+   - `--model (-m)`: LLM model name, e.g., `gpt2`.
+   - `--output (-o)`: path to the directory for the output data files, e.g., `$HOME/data`
 
 
-   The input parameter `kubeconfig` and `k8s-context-name` are optional. Setting both parameters to `None`, we will use the current context set in the kubeconfig file set by the `KUBECONFIG` env variable. For example:
+   The flags `--context` and `--containername` are optional. Furthermore, if the flag `--config` is set to `None`, we will use the current context set in the kubeconfig file set by the `KUBECONFIG` env variable. For example:
 
    ```bash 
-   python3 vllm-serverStartupLatency.py None None environment=test vllm-test gpt2 $HOME/data
+   python3 vllm-serverStartupLatency.py -cfg None -l environment=test -m gpt2 -o $HOME/data
    ```
 
    The generated output from the script are two files. The first is a tab-delimited file named `<model-name>_vllm-server-startup-latency.txt` with the following structure:
 
    ```console 
-   <pod-name> <process-startup> <engine-initalization-time> <model-weights-loading-time> <model-weights-loading_GB><time_before_torch_compile> <torch_compile_time> <CUDA-graph-capture> <api-readiness>
+   <pod-name> <process-startup> <engine-initalization-time> <model-weights-download-time> <model-weights-loading-time> <model-weights-loading_GB><time_before_torch_compile> <torch_compile_time> <CUDA-graph-capture> <api-readiness>
    ```
 
    Also, the unit of measurement for each value is `seconds` in the generated output file, except for the value in the first colum which corresponds to the VLLM pod name, and the `<model-weights-loading_GB>` which has unit of GB. 
@@ -69,10 +70,10 @@ In this tutorial, we will compute the breakdown of the e2e latency for a VLLM se
    Sample output:
 
    ```console 
-   vllm-granite-3-0-2b-instruct-6f9cb88444-2czv  3  13  41  15.25  3.41  35.59  18  5
+  vllm-granite-3-0-2b-instruct-df585f45d-pcv   10   19   17.23   7  4.72   3.66  39.34  23   10
    ```
 
-   The second file contains the logs of the vllm pods. For example:
+   The second file contains the logs of the vLLM pods. For example:
 
    ```bash
    cat vllm-granite-3-0-2b-instruct-6f9cb88444-2czvd-log.txt
@@ -115,23 +116,23 @@ In this tutorial, we will compute the breakdown of the e2e latency for a VLLM se
    kubectl -n vllm-test delete pods -l environment=test
    ```
 
-#### 3. Compute the startup latencies of the VLLM server by analyzing an existing log text file (OPTIONAL):
+#### 3. Compute the startup latencies of the vLLM server by analyzing an existing log text file (OPTIONAL):
 
    Run the metrics collection script:
 
    ```bash
-   python3 vllm-logParser.py <vllm-log-file> <output-directory>
+   python3 vllm-logParser.py -f <vllm-log-file> -o <output-directory>
    ```
 
    For example:
    
    ```bash 
-   python3 vllm-logParser.py $HOME/logs/pod-vllm-logs.txt $HOME/data
+   python3 vllm-logParser.py -f $HOME/logs/pod-vllm-logs.txt -o $HOME/data
    ```
 
    Below is a detailed explanation of the input parameters:
-   - `vllm-log-file`: text file with the vllm logs,  e.g., `$HOME/logs/pod-vllm-logs.txt`
-   - `output-directory`: path to the directory for the output data file, e.g., `$HOME/data`
+   - `--filename (-f)`: text file with the vLLM logs,  e.g., `$HOME/logs/pod-vllm-logs.txt`
+   - `--output (-o)`: path to the directory for the output data files, e.g., `$HOME/data`
 
    Below is a snapshot of few lines for the begining of a valid VLLM log file:
 
@@ -146,7 +147,7 @@ In this tutorial, we will compute the breakdown of the e2e latency for a VLLM se
    The generated output from the script are two files. The first is a tab-delimited file named `vllm-server-startup-latency.txt` with the following structure:
 
    ```console 
-   <engine-initalization-time> <model-weights-loading-time> <model-weights-loading_GB><time_before_torch_compile> <torch_compile_time> <CUDA-graph-capture> <api-readiness>
+   <engine-initalization-time> <model-weights-download-time> <model-weights-loading-time> <model-weights-loading_GB><time_before_torch_compile> <torch_compile_time> <CUDA-graph-capture> <api-readiness>
    ```
 
    For example: 
@@ -159,7 +160,7 @@ In this tutorial, we will compute the breakdown of the e2e latency for a VLLM se
    Sample output:
 
    ```console 
-   13  41  15.25  3.41  35.59  18  5
+  19   17.23   7  4.72   3.66   39.34   23  0
    ```
 
 

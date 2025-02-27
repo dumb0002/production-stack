@@ -47,23 +47,29 @@ class Collector():
         pods = self.core_v1_api.list_namespaced_pod(namespace, label_selector=label_selector).items
         return pods
 
-    def get_pod_readiness_time(self, pod_name, namespace="default"):
+    def get_pod_readiness_time(self, pod):
         for cond in pod.status.conditions:
            if cond.type == "Ready":
               t = cond.last_transition_time
               return t
 
-    def get_container_running_time(self, pod_name, namespace="default"):
-        t = (pod.status.container_statuses[0]).state.running.started_at
+    def get_container_running_time(self, pod, container=None):
+        t = 0
+        if container != None:
+           for c in pod.status.container_statuses:
+               if c.name == container:
+                  t = c.state.running.started_at
+        else:
+            t = (pod.status.container_statuses[0]).state.running.started_at
         return t
 
             
 if __name__=="__main__": 
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("-c", "--config", default="~/.kube/config", help="kubeconfig for the target cluster")
-    parser.add_argument("--context", default=None, help="name of k8s cluster context")
-    parser.add_argument("--containername", default=None, help="name of container in VLLM pod")
+    parser.add_argument("-cfg", "--config", default="~/.kube/config", help="kubeconfig for the target cluster")
+    parser.add_argument("-ctx", "--context", default=None, help="name of k8s cluster context")
+    parser.add_argument("-c", "--containername", default=None, help="name of container in VLLM pod")
     parser.add_argument("-l", "--label", help="vllm pod label selector (e.g, 'environment=test')")
     parser.add_argument("-n", "--namespace", default="default", help="vllm pod namespace")
     parser.add_argument("-m", "--model", default="mymodel", help="helpful description of model run by VLLM")
@@ -98,50 +104,53 @@ if __name__=="__main__":
                     f.close()
 
                     # Compute the breakdow of the e2e startup latency for the VLLM server  
-                    temp_logs = pod_logs.splitlines()
+                    logs = pod_logs.splitlines()
 
                     print("Computing Startup latency ...")
                     # Extracting container running time
-                    d_0a = c.get_container_running_time(name, namespace)
+                    d_0a = c.get_container_running_time(pod, containername)
 
                     # Extracting vllm_first_log_message_timestamp
-                    d_0b = get_log_first_timestamp(temp_logs)
+                    d_0b = get_log_first_timestamp(logs)
 
                     # Compute process startup
                     t0 = (d_0b - d_0a).seconds
 
                     print("Extracting engine initalization latency ...")
-                    t1 = get_engine_init_time(temp_logs)
+                    t1 = get_engine_init_time(logs)
 
-                    print("Extracting Model Loading latency ...")
-                    t2 = get_model_load_time(temp_logs)
+                    print("Extracting Model Weight Download latency ...")
+                    t2 = get_model_weight_download_time(logs)
+
+                    print("Extracting Model Weight Loading latency ...")
+                    t3 = get_model_weight_load_time(logs)
 
                     print("Extracting Model Weight Loading GB latency ...")
-                    t3 = get_model_weight_gb(temp_logs)
+                    t4 = get_model_weight_gb(logs)
 
                     print("Extracting time before torch.compile...")
-                    tx = get_before_torch_compile_time(temp_logs)
+                    tx = get_before_torch_compile_time(logs)
 
                     print("Extracting torch.compile time ...")
-                    t5 = get_torch_compile_time(temp_logs)
-                    t4 = round(float(tx) - float(t5), 3) # computing time before torch.compile
+                    t6 = get_torch_compile_time(logs)
+                    t5 = round(float(tx) - float(t6), 3) # computing time before torch.compile
 
                     print("Extracting CUDA graph instantiation latency ...")
-                    t6 = get_cuda_graph_time(temp_logs)
+                    t7 = get_cuda_graph_time(logs)
 
                     print("Computing API Server Init latency ...")
                     # Extracting init engine time
-                    d_7a = get_apiserver_init_time(temp_logs)
+                    d_8a = get_apiserver_init_time(logs)
                     # Extracting pod readiness time
-                    d_7b = c.get_pod_readiness_time(name, namespace)
+                    d_8b = c.get_pod_readiness_time(pod)
                     # Compute init latency
-                    t7 = (d_7b - d_7a).seconds
+                    t8 = (d_8b - d_8a).seconds
             else:
                 print("Pod is not running or condition status is not 'ready': ", name)
                 continue
 
             print('--------------------------------------')
-            fout.write(name + "\t" + str(t0) +  "\t" + str(t1) + "\t" + str(t2) + "\t" + str(t3) + "\t" + str(t4) + "\t" + str(t5) + "\t" + str(t6) + "\t" + str(t7) + "\n")
+            fout.write(name + "\t" + str(t0) +  "\t" + str(t1) + "\t" + str(t2) + "\t" + str(t3) + "\t" + str(t4) + "\t" + str(t5) + "\t" + str(t6) + "\t" + str(t7) + "\t" + str(t8) + "\n")
             fout.flush()
         fout.close()
     else:
