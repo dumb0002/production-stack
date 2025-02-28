@@ -7,7 +7,7 @@ from parserHelper import *
 
 
 class Parser():
-    def compute_server_latencies(self, fname, output_dir):
+    def compute_server_latencies(self, fname, output_dir, cached):
 
         fin = open(fname, "r")
         fout = open(output_dir + "/vllm-server-startup-latency.txt", "w")
@@ -22,7 +22,10 @@ class Parser():
         t2 = get_model_weight_download_time(logs)
 
         print("Extracting Model Weight Loading latency ...")
-        t3 = get_model_weight_load_time(logs)
+        if cached == "no":
+           t3 = get_model_weight_load_time(logs)
+        else:
+           t3 = get_model_load_time(logs)
 
         print("Extracting Model Weight Loading GB latency ...")
         t4 = get_model_weight_gb(logs)
@@ -48,11 +51,13 @@ if __name__=="__main__":
 
     parser = argparse.ArgumentParser()
     parser.add_argument("-f", "--filename", help="input filename (e.g., vllm-logs.txt)")
+    parser.add_argument("--model-cached", default="no", help="helpful description if model already in cache")
     parser.add_argument("-o", "--output", default="vllm-log-dir", help="path to directory for output files (must exist)")
     args = parser.parse_args()
    
     fname = args.filename
     output_dir=args.output
+    cached=args.model_cached
     
     c = Parser()
-    c.compute_server_latencies(fname, output_dir)
+    c.compute_server_latencies(fname, output_dir, cached)

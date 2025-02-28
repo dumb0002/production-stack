@@ -27,13 +27,13 @@ In this tutorial, we will compute the breakdown of the e2e latency for a vLLM se
    Then, run the metrics collection script:
 
    ```bash
-   python3 vllm-serverStartupLatency.py -cfg <kubeconfig> -ctx <k8s-context-name> -l <pod-label-selector>  -c <container-name> -n <namespace> -m <model-name> -o <output-directory>
+   python3 vllm-serverStartupLatency.py -cfg <kubeconfig> -ctx <k8s-context-name> -l <pod-label-selector>  -c <container-name> -n <namespace> -m <model-name> --model-cached <yes/no> -o <output-directory>
    ```
 
    For example:
    
    ```bash 
-   python3 vllm-serverStartupLatency.py -cfg $HOME/.kube/config -ctx wec1 -l environment=test -c vllm -n vllm-test -m gpt2 -o $HOME/data
+   python3 vllm-serverStartupLatency.py -cfg $HOME/.kube/config -ctx wec1 -l environment=test -c vllm -n vllm-test -m gpt2 --model-cached no -o $HOME/data
    ```
 
    Below is a detailed explanation of the input parameters:
@@ -43,6 +43,7 @@ In this tutorial, we will compute the breakdown of the e2e latency for a vLLM se
    - `--containername (-c)`: name of container in vLLM pod (default: `None`)
    - `--namespace (-n)`: namespace for the vLLM pods (default: `default`)
    - `--model (-m)`: LLM model name, e.g., `gpt2`.
+   - `--model-cached`: if model already in cache or not (default: `no`)
    - `--output (-o)`: path to the directory for the output data files, e.g., `$HOME/data`
 
 
@@ -125,18 +126,19 @@ In this tutorial, we will compute the breakdown of the e2e latency for a vLLM se
    Run the metrics collection script:
 
    ```bash
-   python3 vllm-logParser.py -f <vllm-log-file> -o <output-directory>
+   python3 vllm-logParser.py -f <vllm-log-file> --model-cached <yes/no> -o <output-directory>
    ```
 
    For example:
    
    ```bash 
-   python3 vllm-logParser.py -f $HOME/logs/pod-vllm-logs.txt -o $HOME/data
+   python3 vllm-logParser.py -f $HOME/logs/pod-vllm-logs.txt --model-cached yes -o $HOME/data
    ```
 
    Below is a detailed explanation of the input parameters:
    - `--filename (-f)`: text file with the vLLM logs,  e.g., `$HOME/logs/pod-vllm-logs.txt`
    - `--output (-o)`: path to the directory for the output data files, e.g., `$HOME/data`
+   - `--model-cached`: if model already in cache or not (default: `no`)
 
    Below is a snapshot of few lines for the begining of a valid VLLM log file:
 

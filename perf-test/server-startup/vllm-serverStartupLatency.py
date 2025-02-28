@@ -73,6 +73,7 @@ if __name__=="__main__":
     parser.add_argument("-l", "--label", help="vllm pod label selector (e.g, 'environment=test')")
     parser.add_argument("-n", "--namespace", default="default", help="vllm pod namespace")
     parser.add_argument("-m", "--model", default="mymodel", help="helpful description of model run by VLLM")
+    parser.add_argument("--model-cached", default="no", help="helpful description if model already in cache")
     parser.add_argument("-o", "--output", default="vllm-log-dir", help="path to directory for output files (must exist)")
     args = parser.parse_args()
     kubeconfig=args.config
@@ -82,6 +83,7 @@ if __name__=="__main__":
     model_name=args.model
     output_dir=args.output
     containername=args.containername
+    cached=args.model_cached
     
     c = Collector()
     pods = c.find_pod_by_label(label_selector, namespace)
@@ -123,7 +125,11 @@ if __name__=="__main__":
                     t2 = get_model_weight_download_time(logs)
 
                     print("Extracting Model Weight Loading latency ...")
-                    t3 = get_model_weight_load_time(logs)
+
+                    if cached == "no":
+                       t3 = get_model_weight_load_time(logs)
+                    else:
+                       t3 = get_model_load_time(logs)
 
                     print("Extracting Model Weight Loading GB latency ...")
                     t4 = get_model_weight_gb(logs)
