@@ -3,6 +3,7 @@
 
 # -- Serving engine configuratoon
 servingEngineSpec:
+  enableEngine: true
   # -- Customized labels for the serving engine deployment
   labels:
     environment: "test"
@@ -217,6 +218,27 @@ servingEngineSpec:
     #   - ALL
     # -- Read-only root filesystem
     # readOnlyRootFilesystem: true
+
+  ingress:
+    # -- Enable ingress controller resource
+    enabled: false
+
+    # -- IngressClass that will be used to implement the Ingress
+    className: ""
+
+    # -- Additional annotations for the Ingress resource
+    annotations: {}
+
+    # The list of hostnames to be covered with this ingress record.
+    hosts:
+      - host: vllm-engine.local
+        paths:
+          - path: /
+            pathType: Prefix
+
+    # --  The tls configuration for hostnames to be covered with this ingress record.
+    tls: []
+    
 
 routerSpec:
   # -- The docker image of the router. The following values are defaults:

@@ -1,0 +1,48 @@
+servingEngineSpec:
+  enableEngine: true
+  runtimeClassName: ""
+  labels:
+    environment: "test"
+    mvp: "test"
+  ingress:
+    enabled: true
+    hosts:
+      - host: vllm-engine.local
+        paths:
+          - path: /
+            pathType: Prefix
+  modelSpec:
+  - name: "opt125m"
+    repository: "vllm/vllm-openai"
+    tag: "v0.8.1"
+    modelURL: "ibm-granite/granite-3.1-2b-instruct"
+    replicaCount: 1
+    requestCPU: 6
+    requestMemory: "16Gi"
+    requestGPU: 1
+    pvcStorage: "20Gi"
+    #hf_token: "hf_xxxxxxxxxxxxx"
+    vllmConfig:
+      # enableChunkedPrefill: false
+      # enablePrefixCaching: false
+      maxModelLen: 16384
+      #dtype: "bfloat16"
+      dtype: "half"
+      # tensorParallelSize: 2
+      extraArgs: ["--enable-sleep-mode", "--gpu-memory-utilization", "1.0"]
+    env: 
+      - name: NVIDIA_VISIBLE_DEVICES
+        value: "0"
+      - name: VLLM_SERVER_DEV_MODE
+        value: "1"
+      # - name: VLLM_USE_V1
+      #   value: "1" 
+    nodeSelectorTerms:
+      - matchExpressions:
+        - key: nvidia.com/gpu.product
+          operator: "In"
+          values:
+          - "Tesla-V100-PCIE-16GB"
+routerSpec:
+  enableRouter: false
+

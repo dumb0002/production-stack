@@ -1,0 +1,20 @@
+servingEngineSpec:
+  enableEngine: false
+
+routerSpec:
+  enableRouter: true
+  replicaCount: 1
+  containerPort: 8000
+  servicePort: 80
+
+  serviceDiscovery: "k8s"
+  routingLogic: "roundrobin"
+  extraArgs: ["--k8s-label-selector", "mvp=test"]
+
+  ingress:
+    enabled: true
+    hosts:
+      - host: vllm-router.local
+        paths:
+          - path: /
+            pathType: Prefix
