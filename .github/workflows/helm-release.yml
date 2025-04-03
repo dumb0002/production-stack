@@ -3,7 +3,7 @@ name: Release vLLM Production Stack Helm Charts
 on:
   push:
     branches:
-      - main
+      - mvp-ps-chart
     paths:
       - "helm/**"
 
