@@ -34,7 +34,7 @@ spec:
             pathType: {{ .pathType }}
             backend:
               service:
-                name: {{ .backend.service.name }}
+                name: "{{ $.Release.Name }}-engine-service"
                 port:
                   number: {{ $.Values.servingEngineSpec.servicePort }}
           {{- end }}
