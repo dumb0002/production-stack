@@ -235,9 +235,6 @@ servingEngineSpec:
         paths:
           - path: /
             pathType: Prefix
-            backend:
-              service:
-                name: "vllm-engine-service"
 
     # --  The tls configuration for hostnames to be covered with this ingress record.
     tls: []
