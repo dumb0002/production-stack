@@ -25,7 +25,8 @@ spec:
     {{- end }}
   {{- end }}
   rules:
-    {{- range .Values.servingEngineSpec.ingress.hosts }}
+    {{- range $modelSpec := $.Values.servingEngineSpec.modelSpec }}
+    {{- range $.Values.servingEngineSpec.ingress.hosts }}
     - host: {{ .host | quote }}
       http:
         paths:
@@ -34,9 +35,10 @@ spec:
             pathType: {{ .pathType }}
             backend:
               service:
-                name: "{{ $.Release.Name }}-engine-service"
+                name: "{{ $.Release.Name }}-{{ $modelSpec.name }}-engine-service"
                 port:
                   number: {{ $.Values.servingEngineSpec.servicePort }}
           {{- end }}
+    {{- end }}
     {{- end }}
 {{- end }}
