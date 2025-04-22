@@ -76,6 +76,17 @@ entries:
     urls:
     - vllm-stack-0.1.2.tgz
     version: 0.1.2
+  - apiVersion: v2
+    created: "2025-04-22T18:35:50.577272873Z"
+    description: The stack deployment of vLLM
+    digest: b2a209cd60d43815876f65feeae5a2e3a161dcdc0c95ba93c9d6bb255a5feee4
+    maintainers:
+    - name: apostac
+    name: vllm-stack
+    type: application
+    urls:
+    - vllm-stack-0.1.1.tgz
+    version: 0.1.1
   - annotations:
       helm.sh/hook: pre-install,pre-upgrade
       helm.sh/hook-weight: "-5"
@@ -97,4 +108,4 @@ entries:
     urls:
     - vllm-stack-0.1.0.tgz
     version: 0.1.0
-generated: "2025-04-08T19:44:36.237419919Z"
+generated: "2025-04-22T18:35:50.577301787Z"
