@@ -17,6 +17,7 @@ import enum
 import os
 import threading
 import time
+import uuid
 from dataclasses import dataclass
 from typing import Dict, List, Optional
 
@@ -42,6 +43,12 @@ class EndpointInfo:
 
     # Model name
     model_name: str
+
+    # Endpoint Id
+    Id: str
+
+    # Engine sleep state: true or false
+    sleep: bool
 
     # Added timestamp
     added_timestamp: float
@@ -91,7 +98,9 @@ class StaticServiceDiscovery(ServiceDiscovery):
             a list of engine URLs
         """
         return [
-            EndpointInfo(url, model, self.added_timestamp)
+            EndpointInfo(
+                url, model, self.added_timestamp
+            )  # Fix this to support sleep and wake_up for vLLM v1
             for url, model in zip(self.urls, self.models)
         ]
 
@@ -205,6 +214,8 @@ class K8sServiceDiscovery(ServiceDiscovery):
                 url=f"http://{engine_ip}:{self.port}",
                 model_name=model_name,
                 added_timestamp=int(time.time()),
+                Id=str(uuid.uuid4()),
+                sleep=False,
             )
 
     def _delete_engine(self, engine_name: str):

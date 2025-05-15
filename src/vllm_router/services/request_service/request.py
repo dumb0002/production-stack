@@ -165,6 +165,7 @@ async def route_general_request(
     request_id = str(uuid.uuid4())
     request_body = await request.body()
     request_json = await request.json()  # TODO (ApostaC): merge two awaits into one
+    request_endpoint = await request.query_params.get("id")
 
     if hasattr(request.app.state, "callbacks") and (
         response_overwrite := request.app.state.callbacks.pre_request(
@@ -196,19 +197,31 @@ async def route_general_request(
 
     # TODO (ApostaC): merge two awaits into one
     endpoints = get_service_discovery().get_endpoint_info()
-    engine_stats = request.app.state.engine_stats_scraper.get_engine_stats()
-    request_stats = request.app.state.request_stats_monitor.get_request_stats(
-        time.time()
-    )
 
-    endpoints = list(filter(lambda x: x.model_name == requested_model, endpoints))
+    if not request_endpoint:
+        endpoints = list(filter(lambda x: x.model_name == requested_model, endpoints))
+        engine_stats = request.app.state.engine_stats_scraper.get_engine_stats()
+        request_stats = request.app.state.request_stats_monitor.get_request_stats(
+            time.time()
+        )
+    else:
+        endpoints = list(
+            filter(
+                lambda x: x.model_name == requested_model and x.Id == request_endpoint,
+                endpoints,
+            )
+        )
+
     if not endpoints:
         return JSONResponse(
             status_code=400, content={"error": f"Model {requested_model} not found."}
         )
 
     logger.debug(f"Routing request {request_id} for model: {requested_model}")
-    if isinstance(request.app.state.router, KvawareRouter):
+    if request_endpoint:
+        server_url = endpoints[0].url
+
+    elif isinstance(request.app.state.router, KvawareRouter):
         server_url = await request.app.state.router.route_request(
             endpoints, engine_stats, request_stats, request, request_json
         )
@@ -216,6 +229,7 @@ async def route_general_request(
         server_url = request.app.state.router.route_request(
             endpoints, engine_stats, request_stats, request
         )
+
     curr_time = time.time()
     logger.info(
         f"Routing request {request_id} to {server_url} at {curr_time}, process time = {curr_time - in_router_time:.4f}"
