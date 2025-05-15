@@ -166,7 +166,7 @@ async def route_general_request(
     request_id = str(uuid.uuid4())
     request_body = await request.body()
     request_json = await request.json()  # TODO (ApostaC): merge two awaits into one
-    
+
     if request.query_params:
         request_endpoint = request.query_params.get("id")
     else:
