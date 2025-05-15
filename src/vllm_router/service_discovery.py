@@ -87,6 +87,7 @@ class StaticServiceDiscovery(ServiceDiscovery):
         assert len(urls) == len(models), "URLs and models should have the same length"
         self.urls = urls
         self.models = models
+        self.engines = [str(uuid.uuid4()) for i in range(0, len(urls))]
         self.added_timestamp = int(time.time())
 
     def get_endpoint_info(self) -> List[EndpointInfo]:
@@ -99,9 +100,9 @@ class StaticServiceDiscovery(ServiceDiscovery):
         """
         return [
             EndpointInfo(
-                url, model, self.added_timestamp
+                url, model, Id, True, self.added_timestamp
             )  # Fix this to support sleep and wake_up for vLLM v1
-            for url, model in zip(self.urls, self.models)
+            for url, model, Id in zip(self.urls, self.models, self.engines)
         ]
 
 

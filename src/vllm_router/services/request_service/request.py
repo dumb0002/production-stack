@@ -165,7 +165,11 @@ async def route_general_request(
     request_id = str(uuid.uuid4())
     request_body = await request.body()
     request_json = await request.json()  # TODO (ApostaC): merge two awaits into one
-    request_endpoint = await request.query_params.get("id")
+
+    if request.query_params:
+        request_endpoint = request.query_params.get("id")
+    else:
+        request_endpoint = None
 
     if hasattr(request.app.state, "callbacks") and (
         response_overwrite := request.app.state.callbacks.pre_request(
@@ -220,6 +224,9 @@ async def route_general_request(
     logger.debug(f"Routing request {request_id} for model: {requested_model}")
     if request_endpoint:
         server_url = endpoints[0].url
+        logger.debug(
+            f"Routing request {request_id} to engine with Id: {endpoints[0].Id}"
+        )
 
     elif isinstance(request.app.state.router, KvawareRouter):
         server_url = await request.app.state.router.route_request(
