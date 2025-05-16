@@ -47,9 +47,6 @@ class EndpointInfo:
     # Endpoint Id
     Id: str
 
-    # Engine sleep state: true or false
-    sleep: bool
-
     # Added timestamp
     added_timestamp: float
 
@@ -100,7 +97,7 @@ class StaticServiceDiscovery(ServiceDiscovery):
         """
         return [
             EndpointInfo(
-                url, model, Id, True, self.added_timestamp
+                url, model, Id, self.added_timestamp
             )  # Fix this to support sleep and wake_up for vLLM v1
             for url, model, Id in zip(self.urls, self.models, self.engines)
         ]
@@ -215,8 +212,7 @@ class K8sServiceDiscovery(ServiceDiscovery):
                 url=f"http://{engine_ip}:{self.port}",
                 model_name=model_name,
                 added_timestamp=int(time.time()),
-                Id=str(uuid.uuid4()),
-                sleep=False,
+                Id=str(uuid.uuid5(uuid.NAMESPACE_DNS, engine_name)),
             )
 
     def _delete_engine(self, engine_name: str):
