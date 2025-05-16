@@ -236,7 +236,9 @@ async def route_general_request(
             f"Routing request {request_id} to engine with Id: {endpoints[0].Id}"
         )
 
-    elif isinstance(request.app.state.router, KvawareRouter):
+    elif isinstance(request.app.state.router, KvawareRouter) or isinstance(
+        request.app.state.router, PrefixAwareRouter
+    ):
         server_url = await request.app.state.router.route_request(
             endpoints, engine_stats, request_stats, request, request_json
         )
