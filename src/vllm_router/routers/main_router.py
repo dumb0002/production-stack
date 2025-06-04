@@ -101,12 +101,7 @@ async def route_score(request: Request, background_tasks: BackgroundTasks):
 
 @main_router.post("/sleep")
 async def route_sleep(request: Request, background_tasks: BackgroundTasks):
-    if request.query_params and request.query_params.get("id"):
-        return await route_general_request(request, "/sleep", background_tasks)
-    else:
-        return JSONResponse(
-            content={"status": "Missing target Engine Id."}, status_code=400
-        )
+    return await route_general_request(request, "/sleep", background_tasks)
 
 
 @main_router.post("/wake_up")
