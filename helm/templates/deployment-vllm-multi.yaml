@@ -293,7 +293,8 @@ spec:
       {{- end }}
       {{- if $modelSpec.nodeName }}
       nodeName: {{ $modelSpec.nodeName }}
-      {{- else if $modelSpec.nodeSelectorTerms}}
+      {{- end }}
+      {{- if $modelSpec.nodeSelectorTerms}}
       affinity:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
