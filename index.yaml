@@ -2,6 +2,24 @@ apiVersion: v1
 entries:
   vllm-stack:
   - apiVersion: v2
+    created: "2025-06-13T19:45:45.618628875Z"
+    description: The stack deployment of vLLM for libvcp
+    digest: f86585af76d47b399c9476a58a279bf497675dbd9cbba9588c46f2b74c1c5ce4
+    home: https://github.com/vllm-project/production-stack
+    keywords:
+    - vllm
+    - lora
+    - adapter
+    maintainers:
+    - name: apostac
+    name: vllm-stack
+    sources:
+    - https://github.com/vllm-project/production-stack
+    type: application
+    urls:
+    - vllm-stack-0.1.8.tgz
+    version: 0.1.8
+  - apiVersion: v2
     created: "2025-05-02T19:34:26.590383253Z"
     description: The stack deployment of vLLM for libvcp
     digest: ed049e2604bc2d445ce185d9eb9b182bcca8d2abd437d1743baa246601f9d997
@@ -126,4 +144,4 @@ entries:
     urls:
     - vllm-stack-0.1.0.tgz
     version: 0.1.0
-generated: "2025-05-02T19:34:26.590418067Z"
+generated: "2025-06-13T19:45:45.618664151Z"
