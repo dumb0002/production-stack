@@ -2,6 +2,17 @@ apiVersion: v1
 entries:
   vllm-stack:
   - apiVersion: v2
+    created: "2025-12-08T16:37:04.485099943Z"
+    description: The stack deployment of vLLM
+    digest: b0e67db5a0ca765c30c97daf86ee914681687a37ed2ca05ada92b7d461999e36
+    maintainers:
+    - name: apostac
+    name: vllm-stack
+    type: application
+    urls:
+    - vllm-stack-0.1.30.tgz
+    version: 0.1.30
+  - apiVersion: v2
     created: "2025-12-01T16:38:04.382179987Z"
     description: The stack deployment of vLLM
     digest: 648fc41eaecc2a925de464ad7179bfc5aa1765f6e6945af4293e61beb83fcc49
@@ -364,4 +375,4 @@ entries:
     urls:
     - vllm-stack-0.1.0.tgz
     version: 0.1.0
-generated: "2025-12-01T16:38:04.382446184Z"
+generated: "2025-12-08T16:37:04.485426685Z"
